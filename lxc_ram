@@ -75,18 +75,18 @@ fi
    let i=i+1
 
    tmp_v=`$f_comm -n $guest_name memory.usage_in_bytes`
-   echo 'mem_usage'$guest_name'.value '$tmp_v
+   echo 'mem_usage_'$i'.value '$tmp_v
    
    tmp_g=`$f_comm -n $guest_name memory.stat | grep total_cache`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_cache'$guest_name'.value '$tmp_v
+   echo  'mem_cache_'$i'.value '$tmp_v
    
    tmp_g=`$f_comm -n zimbrasrv memory.stat | grep total_active_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_active'$guest_name'.value '$tmp_v
+   echo  'mem_active_'$i'.value '$tmp_v
  
    tmp_g=`$f_comm -n zimbrasrv memory.stat | grep total_inactive_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_inactive'$guest_name'.value '$tmp_v
+   echo  'mem_inactive_'$i'.value '$tmp_v
 
   done
