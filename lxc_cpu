@@ -68,11 +68,11 @@ fi
   
   tmp_g=`$f_comm -n $guest_name cpuacct.stat | grep user`
   tmp_v=`echo $tmp_g | awk '{print($2)}'`
-  echo "cpu_user_$i.value $tmp_v"
+  echo 'cpu_user_'$i'.value $tmp_v'
   
   tmp_g=`$f_comm -n $guest_name cpuacct.stat | grep system`
   tmp_v=`echo $tmp_g | awk '{print($2)}'`
-  echo "cpu_system_$i.value $tmp_v"
+  echo 'cpu_system_'$i'.value $tmp_v'
 
  done
 
