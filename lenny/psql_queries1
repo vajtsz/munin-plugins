@@ -65,23 +65,21 @@ if ($configure) {
 
  foreach my $ldbn (@listed_dbnames) 
  {
-
- print "seqsel_$ldbn.label  $ldbn Sequential select count\n";
- print "seqsel_$ldbn.draw LINE2\n";
- print "seqsel_$ldbn.type COUNTER\n";
- print "sqlselrows_$ldbn.label $ldbn Sequential select rows returned\n";
- print "sqlselrows_$ldbn.draw LINE2\n";
- print "sqlselrows_$ldbn.type COUNTER\n";
- print "idxsel_$ldbn.label $ldbn Index select count\n";
- print "idxsel_$ldbn.draw LINE2\n";
- print "idxsel_$ldbn.type COUNTER\n";
- print "idxselrows_$ldbn.label $ldbn Index select rows returned\n";
- print "idxselrows_$ldbn.draw LINE2\n";
- print "idxselrows_$ldbn.type COUNTER\n";
- print "update_$ldbn.label $ldbn Update count\n";
- print "update_$ldbn.draw LINE2\n";
- print "update_$ldbn.type COUNTER\n"; 
-
+  print "seqsel_$ldbn.label  $ldbn Sequential select count\n";
+  print "seqsel_$ldbn.draw LINE2\n";
+  print "seqsel_$ldbn.type COUNTER\n";
+  print "sqlselrows_$ldbn.label $ldbn Sequential select rows returned\n";
+  print "sqlselrows_$ldbn.draw LINE2\n";
+  print "sqlselrows_$ldbn.type COUNTER\n";
+  print "idxsel_$ldbn.label $ldbn Index select count\n";
+  print "idxsel_$ldbn.draw LINE2\n";
+  print "idxsel_$ldbn.type COUNTER\n";
+  print "idxselrows_$ldbn.label $ldbn Index select rows returned\n";
+  print "idxselrows_$ldbn.draw LINE2\n";
+  print "idxselrows_$ldbn.type COUNTER\n";
+  print "update_$ldbn.label $ldbn Update count\n";
+  print "update_$ldbn.draw LINE2\n";
+  print "update_$ldbn.type COUNTER\n"; 
  }
 } else {
 
@@ -96,7 +94,7 @@ if ($configure) {
    my $dbh = DBI->connect ($dsn, $dbuser, $dbpass, {RaiseError =>1});
    unless($dbh) {
     die("Database $dbname\@$dbhost (". $DBI::errstr .")\n");
-   }
+  }
 
    my $q_ind = "select sum(seq_scan) as seq_scan,sum(seq_tup_read) as seq_tup_read,sum(idx_scan) as idx_scan,sum(idx_tup_fetch) as idx_tup_fetch  
                 from pg_stat_all_tables";
