@@ -77,9 +77,6 @@ if ($configure) {
   print "idxselrows_$ldbn.label $ldbn Index select rows returned\n";
   print "idxselrows_$ldbn.draw LINE2\n";
   print "idxselrows_$ldbn.type COUNTER\n";
-  print "update_$ldbn.label $ldbn Update count\n";
-  print "update_$ldbn.draw LINE2\n";
-  print "update_$ldbn.type COUNTER\n"; 
  }
 } else {
 
