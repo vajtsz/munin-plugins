@@ -28,7 +28,8 @@ Unknown license
 
 . $MUNIN_LIBDIR/plugins/plugin.sh
 
-guest_names=`ls -d /var/lib/lxc/* | xargs -l basename`
+guest_names=`lxc-ls`
+
 f_comm='lxc-cgroup  '
 
 if [ "$1" = "autoconf" ]; then
