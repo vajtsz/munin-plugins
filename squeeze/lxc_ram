@@ -81,11 +81,11 @@ fi
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
    echo  'mem_cache_'$i'.value '$tmp_v
    
-   tmp_g=`$f_comm -n zimbrasrv memory.stat | grep total_active_anon`
+   tmp_g=`$f_comm -n $guest_name memory.stat | grep total_active_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
    echo  'mem_active_'$i'.value '$tmp_v
  
-   tmp_g=`$f_comm -n zimbrasrv memory.stat | grep total_inactive_anon`
+   tmp_g=`$f_comm -n $guest_name memory.stat | grep total_inactive_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
    echo  'mem_inactive_'$i'.value '$tmp_v
 
