@@ -9,7 +9,9 @@ lxc_cpu - Plugin to monitor LXC CPU usage
 
 =head1 CONFIGURATION
 
-No configuration
+  [lxc_cpu]
+    user root
+    group root
 
 =head1 AUTHOR
 
