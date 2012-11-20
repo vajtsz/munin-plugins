@@ -63,13 +63,13 @@ if [ "$1" = "config" ]; then
   do
    guest="$(clean_fieldname $guest_name)"
 
-   echo 'mem_usage_'$guest'.label Mem usage '$guest_name
+   echo 'mem_usage_'$guest'.label '$guest_name': Mem usage'
    echo 'mem_usage_'$guest'.type GAUGE'
-   echo 'mem_cache_'$guest'.label Cache '$guest_name
+   echo 'mem_cache_'$guest'.label '$guest_name': Cache'
    echo 'mem_cache_'$guest'.type GAUGE'
-   echo 'mem_active_'$guest'.label Active '$guest_name
+   echo 'mem_active_'$guest'.label '$guest_name': Active'
    echo 'mem_active_'$guest'.type GAUGE'
-   echo 'mem_inactive_'$guest'.label Inactive '$guest_name
+   echo 'mem_inactive_'$guest'.label '$guest_name': Inactive'
    echo 'mem_inactive_'$guest'.type GAUGE'
 
   done

@@ -61,7 +61,7 @@ if [ "$1" = "config" ]; then
  for guest_name in $guest_names;
   do
    guest="$(clean_fieldname $guest_name)"
-   echo 'cpu_time_'$guest'.label CPU time '$guest_name
+   echo 'cpu_time_'$guest'.label '$guest_name': CPU time'
    echo 'cpu_time_'$guest'.type COUNTER'
   done
  exit 0
