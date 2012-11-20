@@ -14,6 +14,7 @@ No configuration
 =head1 AUTHOR
 
 vajtsz vajtsz@gmail.com
+mitty   mitty@mitty.jp
 
 =head1 LICENSE
 
@@ -28,7 +29,13 @@ Unknown license
 
 . $MUNIN_LIBDIR/plugins/plugin.sh
 
-guest_names=`lxc-ls`
+guest_names=`lxc-ls | sort -u`
+for guest in $guest_names; do
+    if lxc-info -n $guest 2>&1 | grep -qs RUNNING ; then
+        active="$active $guest"
+    fi
+done
+guest_names="$active"
 
 f_comm='lxc-cgroup  '
 
@@ -50,43 +57,41 @@ if [ "$1" = "config" ]; then
  echo 'graph_category lxc'
 
 
- i=0
  for guest_name in $guest_names;
   do
-   let i=i+1
+   guest="$(clean_fieldname $guest_name)"
 
-   echo 'mem_usage_'$i'.label Mem usage '$guest_name
-   echo 'mem_usage_'$i'.type GAUGE'
-   echo 'mem_cache_'$i'.label Cache '$guest_name
-   echo 'mem_cache_'$i'.type GAUGE'
-   echo 'mem_active_'$i'.label Active '$guest_name
-   echo 'mem_active_'$i'.type GAUGE'
-   echo 'mem_inactive_'$i'.label Inactive '$guest_name
-   echo 'mem_inactive_'$i'.type GAUGE'
+   echo 'mem_usage_'$guest'.label Mem usage '$guest_name
+   echo 'mem_usage_'$guest'.type GAUGE'
+   echo 'mem_cache_'$guest'.label Cache '$guest_name
+   echo 'mem_cache_'$guest'.type GAUGE'
+   echo 'mem_active_'$guest'.label Active '$guest_name
+   echo 'mem_active_'$guest'.type GAUGE'
+   echo 'mem_inactive_'$guest'.label Inactive '$guest_name
+   echo 'mem_inactive_'$guest'.type GAUGE'
 
   done
  
  exit 0
 fi
 
- i=0
  for guest_name in $guest_names;
   do
-   let i=i+1
+   guest="$(clean_fieldname $guest_name)"
 
    tmp_v=`$f_comm -n $guest_name memory.usage_in_bytes`
-   echo 'mem_usage_'$i'.value '$tmp_v
+   echo 'mem_usage_'$guest'.value '$tmp_v
    
    tmp_g=`$f_comm -n $guest_name memory.stat | grep total_cache`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_cache_'$i'.value '$tmp_v
+   echo  'mem_cache_'$guest'.value '$tmp_v
    
    tmp_g=`$f_comm -n $guest_name memory.stat | grep total_active_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_active_'$i'.value '$tmp_v
+   echo  'mem_active_'$guest'.value '$tmp_v
  
    tmp_g=`$f_comm -n $guest_name memory.stat | grep total_inactive_anon`
    tmp_v=`echo $tmp_g | awk '{print($2)}'`
-   echo  'mem_inactive_'$i'.value '$tmp_v
+   echo  'mem_inactive_'$guest'.value '$tmp_v
 
   done
