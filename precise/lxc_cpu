@@ -62,9 +62,11 @@ if [ "$1" = "config" ]; then
  do 
   guest="$(clean_fieldname $guest_name)"
   echo 'cpu_user_'$guest'.label '$guest_name': User'
-  echo 'cpu_user_'$guest'.type COUNTER'
+  echo 'cpu_user_'$guest'.type DERIVE'
+  echo 'cpu_user_'$guest'.min 0'
   echo 'cpu_system_'$guest'.label '$guest_name': System'
-  echo 'cpu_system_'$guest'.type COUNTER'
+  echo 'cpu_system_'$guest'.type DERIVE'
+  echo 'cpu_system_'$guest'.min 0'
  done
  exit 0
 fi
