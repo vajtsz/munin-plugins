@@ -83,13 +83,13 @@ if [ "$1" = "config" ]; then
             bps=$(($bps * 1000 * 1000))
         fi
         
-        echo "${guest}_down.label $guestname: bps"
+        echo "${guest}_down.label $guestname"
         echo "${guest}_down.type DERIVE"
         echo "${guest}_down.graph no"
         echo "${guest}_down.cdef ${guest}_down,8,*"
         echo "${guest}_down.min 0"
         echo "${guest}_down.max $bps"
-        echo "${guest}_up.label $guestname: bps"
+        echo "${guest}_up.label $guestname"
         echo "${guest}_up.type DERIVE"
         echo "${guest}_up.negative ${guest}_down"
         echo "${guest}_up.cdef ${guest}_up,8,*"
