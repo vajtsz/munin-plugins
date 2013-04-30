@@ -1,0 +1,111 @@
+#!/usr/bin/perl
+
+# Licenced under GPL
+
+# Magic markers
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+use DBI;
+use vars qw ( $debug $configure $dbh );
+
+# Package maintainers should provide an environment
+# file for the /etc/munin/plugin-conf.d/ directory
+# to override these values if necessary.
+# NOTE: The plugin (also when auto configured) should
+# be run by the postgresql user account.
+
+# Need these variables at an early stage to enable
+# autoconf
+my $dbhost = $ENV{'dbhost'} || ''; # Connect to localhost by default
+my $dbname = $ENV{'dbname'} || 'template1';
+my $dbuser = $ENV{'dbuser'} || 'konyvelo';
+my $dbpass = $ENV{'dbpass'} || 'pwd';
+my @listed_dbnames = ("fokonyv2007","kvizsg2007","beszamolo");   # Listed Database names
+
+if (exists $ARGV[0]) {
+    if ($ARGV[0] eq 'autoconf') {
+        # Check for DBD::Pg
+        if (! eval "require DBD::Pg;") {
+            print "no (DBD::Pg not found)";
+            exit 1;
+        }
+        # Then we try to detect Postgres presence by connecting to
+        # 'template1'.
+        my $dsn = "dbi:Pg:dbname=template1";
+        $dsn .= ";host=$dbhost" if $dbhost;
+        print "#$dsn\n" if $debug;
+        my $tempdbh = DBI->connect ($dsn, $dbuser, $dbpass);
+        if ($tempdbh) {
+            print "yes\n";
+            exit 0;
+        } else {
+            print "no (Can't connect to given host, please check environment settings)\n";
+            exit 1;
+        }
+    } elsif ($ARGV[0] and $ARGV[0] eq 'debug') {
+        # Set config flag
+        $debug = 1;
+    } elsif ($ARGV[0] and $ARGV[0] eq 'config') {
+        # Set config flag
+        $configure = 1;
+    } 
+}
+
+
+my @datasources = DBI->data_sources ('Pg')
+    or die ("Can't read any possible data sources: $?");
+
+my $dsn = "DBI:Pg:dbname=$dbname";
+$dsn .= ";host=$dbhost" if $dbhost;
+print "#$dsn\n" if $debug;
+my $dbh = DBI->connect ($dsn, $dbuser, $dbpass, {RaiseError =>1});
+unless($dbh) {
+    die("Database $dbname\@$dbhost (". $DBI::errstr .")\n");
+}
+
+if ($configure) {
+
+ print "graph_title PostgreSQL common\n";
+ print "graph_vlabel Count\n";
+ print "graph_category PostgreSQL\n";
+ print "graph_args --base 1000\n";
+
+ foreach my $ldbn (@listed_dbnames) 
+ {
+  print "backends_$ldbn.label $ldbn Backend count\n";
+  print "backends_$ldbn.draw LINE2\n";
+  print "backends_$ldbn.type COUNTER\n";
+  print "commits_$ldbn.label $ldbn Commit count\n";
+  print "commits_$ldbn.draw LINE2\n";
+  print "commits_$ldbn.type COUNTER\n";
+  print "rollbacks_$ldbn.label $ldbn Rollback count\n";
+  print "rollbacks_$ldbn.draw LINE2\n";
+  print "rollbacks_$ldbn.type COUNTER\n";
+
+ }
+} else {
+    my $tmp_dbnames='';
+    foreach my $ldbn (@listed_dbnames)
+    {
+     $tmp_dbnames=$tmp_dbnames."'".$ldbn."',";
+    }
+    $tmp_dbnames=substr($tmp_dbnames, 0, length($tmp_dbnames)-1);
+
+    my $q_ind = "select sum(numbackends) as backends,sum(xact_commit) as commits,sum(xact_rollback) as rollbacks,datname as dbname from pg_stat_database
+                 where datname in ($tmp_dbnames)
+                 group by datname
+                 order by datname";
+    my $sth = $dbh->prepare ($q_ind) or die $dbh->errstr;
+
+    $sth->execute () or die $dbh->errstr;
+    while (my ($backends,$commits,$rollbacks,$dbname) = $sth->fetchrow_array) {
+     print "backends_$dbname.value $backends\n";
+     print "commits_$dbname.value $commits\n";
+     print "rollbacks_$dbname.value $rollbacks\n";
+    }
+    $sth->finish;
+}
+    $dbh->disconnect;
+

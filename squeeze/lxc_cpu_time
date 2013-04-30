@@ -14,6 +14,7 @@ No configuration
 =head1 AUTHOR
 
 vajtsz vajtsz@gmail.com
+mitty   mitty@mitty.jp
 
 =head1 LICENSE
 
@@ -28,7 +29,14 @@ Unknown license
 
 . $MUNIN_LIBDIR/plugins/plugin.sh
 
-guest_names=`lxc-ls`
+guest_names=`lxc-ls | sort -u`
+for guest in $guest_names; do
+ if lxc-info -n $guest 2>&1 | grep -qs RUNNING ; then
+  active="$active $guest"
+ fi
+done
+guest_names="$active"
+                
 
 f_comm='lxc-cgroup  '
 
@@ -49,22 +57,20 @@ if [ "$1" = "config" ]; then
  echo 'graph_vlabel nanosec'
  echo 'graph_category lxc'
 
- i=0
  for guest_name in $guest_names;
   do
-   let i=i+1
-   echo 'cpu_time_'$i'.label CPU time '$guest_name
-   echo 'cpu_time_'$i'.type COUNTER'
+   guest="$(clean_fieldname $guest_name)"
+   echo 'cpu_time_'$guest'.label '$guest_name': CPU time'
+   echo 'cpu_time_'$guest'.type DERIVE'
+   echo 'cpu_time_'$guest'.min 0'
   done
  exit 0
 fi
 
-
- i=0
  for guest_name in $guest_names;
   do
-   let i=i+1
+   guest="$(clean_fieldname $guest_name)"
    tmp_g=`$f_comm -n $guest_name cpuacct.usage `
-   echo 'cpu_time_'$i'.value '$tmp_g
+   echo 'cpu_time_'$guest'.value '$tmp_g
   done
 

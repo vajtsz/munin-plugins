@@ -1,12 +1,27 @@
-2013.04.29  Unfortunately I haven't got enough time to work with this project.
+2013.04.30  I refresh the psql (postgresql) munin plugins, it tested on squeeze.
 
+            I merge the old lenny dir to squeze.
+
+            I commit mitty fixes to my squeeze dir.
+                        
+            Thanks for new lxc plugin - lxc_net 
+            
+            This plugin reads a "lxc.network.veth.pair" setting from "config" file of each container,
+            because lxc-start command creates a random named veth device without the setting.
+            
+            If the xen config (/var/lib/lxc/GUEST_NAME/config does not contain this parameter,.
+            then you have to fill it, becouse if every guest restart generate new device name, then the graph will be useless
+            ( example config : lxc.network.veth.pair = vethsamba )
+            
+            
+2013.04.29  Unfortunately I haven't got much enough time to work with this project to be much better now. 
             Please visit for new features and fixes :  https://github.com/mittyorz/munin-plugins
-            Thanks mittyorz (Ken-ichi Mito) for that.
-            (Thanks Tomas Pospisek for git help)
-          
+
+
 
 ---------------------------------------------------------------------------------------------------------
 
 Noob but working munin plugins.
 
 Tested on Debian squeeze/lenny
+

@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+# Licenced under GPL
+
+# Magic markers
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+use DBI;
+use vars qw ( $debug $configure $dbh );
+
+# Package maintainers should provide an environment
+# file for the /etc/munin/plugin-conf.d/ directory
+# to override these values if necessary.
+# NOTE: The plugin (also when auto configured) should
+# be run by the postgresql user account.
+
+# Need these variables at an early stage to enable
+# autoconf
+my $dbhost = $ENV{'dbhost'} || ''; # Connect to localhost by default
+my $dbname = $ENV{'dbname'} || 'template1';
+my $dbuser = $ENV{'dbuser'} || 'konyvelo';
+my $dbpass = $ENV{'dbpass'} || 'pwd';
+my @listed_dbnames = ("fokonyv2007","kvizsg2007","beszamolo");   # Listed Database names
+
+if (exists $ARGV[0]) {
+    if ($ARGV[0] eq 'autoconf') {
+        # Check for DBD::Pg
+        if (! eval "require DBD::Pg;") {
+            print "no (DBD::Pg not found)";
+            exit 1;
+        }
+        # Then we try to detect Postgres presence by connecting to
+        # 'template1'.
+        my $dsn = "dbi:Pg:dbname=template1";
+        $dsn .= ";host=$dbhost" if $dbhost;
+        print "#$dsn\n" if $debug;
+        my $tempdbh = DBI->connect ($dsn, $dbuser, $dbpass);
+        if ($tempdbh) {
+            print "yes\n";
+            exit 0;
+        } else {
+            print "no (Can't connect to given host, please check environment settings)\n";
+            exit 1;
+        }
+    } elsif ($ARGV[0] and $ARGV[0] eq 'debug') {
+        # Set config flag
+        $debug = 1;
+    } elsif ($ARGV[0] and $ARGV[0] eq 'config') {
+        # Set config flag
+        $configure = 1;
+    } 
+}
+
+
+
+if ($configure) {
+
+ print "graph_title Fokonyv2007 PostgreSQL queries 2.\n";
+ print "graph_vlabel Count\n";
+ print "graph_category PostgreSQL \n";
+ print "graph_args --base 1000\n";
+
+ foreach my $ldbn (@listed_dbnames) 
+ {
+
+ print "insert_$ldbn.label $ldbn Insert count\n";
+ print "insert_$ldbn.draw LINE2\n";
+ print "insert_$ldbn.type COUNTER\n";
+ print "update_$ldbn.label $ldbn Update count\n";
+ print "update_$ldbn.draw LINE2\n";
+ print "update_$ldbn.type COUNTER\n";
+ print "delete_$ldbn.label $ldbn Delete count\n";
+ print "delete_$ldbn.draw LINE2\n";
+ print "delete_$ldbn.type COUNTER\n";
+
+ }
+} else {
+
+  my @datasources = DBI->data_sources ('Pg')
+    or die ("Can't read any possible data sources: $?");
+
+  foreach my $ldbn (@listed_dbnames)
+  {
+   my $dsn = "DBI:Pg:dbname=$ldbn";
+   $dsn .= ";host=$dbhost" if $dbhost;
+   print "#$dsn\n" if $debug;
+   my $dbh = DBI->connect ($dsn, $dbuser, $dbpass, {RaiseError =>1});
+   unless($dbh) {
+    die("Database $dbname\@$dbhost (". $DBI::errstr .")\n");
+   }
+
+   my $q_ind = "select sum(n_tup_ins) as ins,sum(n_tup_upd) as upd,sum(n_tup_del) as del from pg_stat_all_tables";
+   my $sth = $dbh->prepare ($q_ind) or die $dbh->errstr;
+
+   $sth->execute () or die $dbh->errstr;
+   while (my ($ins,$upd,$del) = $sth->fetchrow_array) {
+     print "insert_$ldbn.value $ins\n";
+     print "update_$ldbn.value $upd\n";
+     print "delete_$ldbn.value $del\n";
+    }
+    $sth->finish;
+
+   $dbh->disconnect;
+  }
+}
+
