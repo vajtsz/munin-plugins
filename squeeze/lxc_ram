@@ -9,7 +9,12 @@ lxc_ram - Plugin to monitor LXC memory usage.
 
 =head1 CONFIGURATION
 
-No configuration
+  [lxc_*]
+    user root
+
+=head1 INTERPRETATION
+
+This plugin needs root privilege.
 
 =head1 AUTHOR
 
