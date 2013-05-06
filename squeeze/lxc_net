@@ -12,10 +12,12 @@ LXC container with "lxc.network.type=veth" and "lxc.network.veth.pair" settings.
 
 =head1 CONFIGURATION
 
-To set the path where LXC containers are stored do like below:
+env.lxcpath - Set the path where LXC containers are stored, default: /var/lib/lxc
+env.exclude - Removing containers from graphs, default: empty
 
   [lxc_net]
     env.lxcpath /var/lib/lxc
+    env.exclude container1 container2
 
 =head1 INTERPRETATION
 
@@ -60,6 +62,9 @@ fi
 
 actives=""
 for guest in `ls $lxcpath`; do
+    if [ `echo $exclude | grep -c "\b$guest\b"` -eq 1 ]; then
+        continue;
+    fi
     if [ -f "$lxcpath/$guest/config" ]; then
         device=`grep '^lxc\.network\.veth\.pair[ \t]*=[ \t]*' $lxcpath/$guest/config | \
             awk '{ split($0, a, /=/); gsub(/[ \t]/, "", a[2]); print a[2]; }'`
