@@ -9,7 +9,12 @@ lxc_cpu - Plugin to monitor LXC CPU usage
 
 =head1 CONFIGURATION
 
-No configuration
+  [lxc_*]
+    user root
+
+=head1 INTERPRETATION
+
+This plugin needs root privilege.
 
 =head1 AUTHOR
 
@@ -28,8 +33,6 @@ Unknown license
 =cut
 
 . $MUNIN_LIBDIR/plugins/plugin.sh
-
-guest_names=`lxc-ls`
 
 guest_names=`lxc-ls | sort -u`
 for guest in $guest_names; do

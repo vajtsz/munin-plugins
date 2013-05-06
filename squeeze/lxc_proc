@@ -9,7 +9,12 @@ lxc_cpu - Plugin to monitor LXC Processes count
 
 =head1 CONFIGURATION
 
-No configuration
+  [lxc_*]
+    user root
+
+=head1 INTERPRETATION
+
+This plugin needs root privilege.
 
 =head1 AUTHOR
 
@@ -28,7 +33,27 @@ Unknown license
 
 . $MUNIN_LIBDIR/plugins/plugin.sh
 
-guest_names=`lxc-ls`
+## find proper sysfs and count it
+# Debian 6.0: /sys/fs/cgroup/<container>/tasks
+# Ubuntu 12.04 with fstab: /sys/fs/cgroup/lxc/<container>/tasks
+# Ubuntu 12.04 with cgroup-lite: /sys/fs/cgroup/cpuacct/lxc/<container>/tasks
+# Ubuntu 12.04 with cgroup-bin: /sys/fs/cgroup/cpuacct/sysdefault/lxc/<container>/tasks
+count_processes () {
+    [ -z "$1" ] && return 0
+    for SYSFS in \
+        /sys/fs/cgroup/$1/tasks \
+        /sys/fs/cgroup/lxc/$1/tasks \
+        /sys/fs/cgroup/cpuacct/lxc/$1/tasks \
+        /sys/fs/cgroup/cpuacct/sysdefault/lxc/$1/tasks \
+    ; do
+        if [ -e $SYSFS ]; then
+            return `wc -l < $SYSFS`
+        fi
+    done
+    
+    return 0
+}
+
 
 guest_names=`lxc-ls | sort -u`
 for guest in $guest_names; do
@@ -64,7 +89,7 @@ if [ "$1" = "config" ]; then
  do 
   guest="$(clean_fieldname $guest_name)"
   echo 'lxc_proc_'$guest'.label '$guest_name': processes'
-  echo 'lxc_proc_'$guest'.type DERIVE'
+  echo 'lxc_proc_'$guest'.type GAUGE'
   echo 'lxc_proc_'$guest'.min 0'
  done
  exit 0
@@ -74,7 +99,11 @@ fi
  do 
   guest="$(clean_fieldname $guest_name)"
   
-  tmp_g=`$f_comm -n $guest_name tasks | wc -l`
+  count_processes $guest_name
+  tmp_g=$?
+  if [ $tmp_g -eq 0 ]; then
+    tmp_g=`$f_comm -n $guest_name tasks | wc -l`
+  fi
   echo 'lxc_proc_'$guest'.value '$tmp_g
   
 
