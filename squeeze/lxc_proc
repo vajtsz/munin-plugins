@@ -5,12 +5,15 @@
 
 =head1 NAME
 
-lxc_cpu - Plugin to monitor LXC Processes count
+lxc_proc - Plugin to monitor LXC Processes count
 
 =head1 CONFIGURATION
 
-  [lxc_*]
+env.cgrouppath - Set the path where 'tasks' sysfs files are stored, default: empty
+
+  [lxc_proc]
     user root
+    env.cgrouppath /sys/fs/cgroup/cpuacct/lxc/
 
 =head1 INTERPRETATION
 
@@ -40,6 +43,14 @@ Unknown license
 # Ubuntu 12.04 with cgroup-bin: /sys/fs/cgroup/cpuacct/sysdefault/lxc/<container>/tasks
 count_processes () {
     [ -z "$1" ] && return 0
+    
+    if [ -n "$cgrouppath" ]; then
+        SYSFS=$cgrouppath/$1/tasks
+        if [ -e $SYSFS ]; then
+            return `wc -l < $SYSFS`
+        fi
+    fi
+    
     for SYSFS in \
         /sys/fs/cgroup/$1/tasks \
         /sys/fs/cgroup/lxc/$1/tasks \
